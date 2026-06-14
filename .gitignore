@@ -1,0 +1,15 @@
+# Basura de sistema / entornos — NUNCA versionar
+.venv/
+venv/
+__pycache__/
+node_modules/
+.DS_Store
+Thumbs.db
+
+# Conflictos de sincronización de OneDrive
+*-jinfama.*
+
+# Carpetas de build / datos intermedios regenerables (no inflar el historial)
+build/
+.cache/
+*.tmp

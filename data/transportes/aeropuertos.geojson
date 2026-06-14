@@ -1,0 +1,18 @@
+{
+"type": "FeatureCollection",
+"name": "aeropuertos",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "codigo_iata": "AGP", "nombre": "Aeropuerto de Málaga-Costa del Sol", "anio_apertura": 1919, "anio_cierre": 0.0, "tipo": "comercial" }, "geometry": { "type": "Point", "coordinates": [ -4.4991, 36.6749 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "SVQ", "nombre": "Aeropuerto de Sevilla-San Pablo", "anio_apertura": 1946, "anio_cierre": 0.0, "tipo": "comercial" }, "geometry": { "type": "Point", "coordinates": [ -5.8931, 37.418 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "GRX", "nombre": "Aeropuerto Federico García Lorca Granada-Jaén", "anio_apertura": 1972, "anio_cierre": 0.0, "tipo": "comercial" }, "geometry": { "type": "Point", "coordinates": [ -3.7774, 37.1887 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "XRY", "nombre": "Aeropuerto de Jerez", "anio_apertura": 1992, "anio_cierre": 0.0, "tipo": "comercial" }, "geometry": { "type": "Point", "coordinates": [ -6.0601, 36.7446 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "LEI", "nombre": "Aeropuerto de Almería", "anio_apertura": 1968, "anio_cierre": 0.0, "tipo": "comercial" }, "geometry": { "type": "Point", "coordinates": [ -2.3701, 36.8439 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "ODB", "nombre": "Aeropuerto de Córdoba", "anio_apertura": 1959, "anio_cierre": 2003.0, "tipo": "cerrado" }, "geometry": { "type": "Point", "coordinates": [ -4.8489, 37.842 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "FGL", "nombre": "Aeropuerto de Granada (antiguo)", "anio_apertura": 1935, "anio_cierre": 1972.0, "tipo": "cerrado" }, "geometry": { "type": "Point", "coordinates": [ -3.772, 37.2271 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "", "nombre": "Aeródromo de Huelva", "anio_apertura": 1930, "anio_cierre": 0.0, "tipo": "militar" }, "geometry": { "type": "Point", "coordinates": [ -6.95, 37.28 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "LGS", "nombre": "Aeropuerto de La Línea", "anio_apertura": 1939, "anio_cierre": 0.0, "tipo": "militar" }, "geometry": { "type": "Point", "coordinates": [ -5.3496, 36.1551 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "", "nombre": "Base Aérea de Morón", "anio_apertura": 1941, "anio_cierre": 0.0, "tipo": "militar" }, "geometry": { "type": "Point", "coordinates": [ -5.6161, 37.1749 ] } },
+{ "type": "Feature", "properties": { "codigo_iata": "", "nombre": "Base Naval de Rota", "anio_apertura": 1955, "anio_cierre": 0.0, "tipo": "militar" }, "geometry": { "type": "Point", "coordinates": [ -6.3495, 36.6451 ] } }
+]
+}

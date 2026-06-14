@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Andalucía en Datos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+</head>
+<body>
+
+<!-- Landing / Hero page -->
+<div class="landing" id="landing">
+    <canvas class="landing-globe" id="landing-globe"></canvas>
+    <canvas class="landing-particles" id="landing-particles"></canvas>
+    <div class="landing-content" id="landing-content">
+        <div class="landing-top">
+            <div class="landing-atlas">ATLAS</div>
+            <h1 class="landing-title">Hist&oacute;rico Municipal<br>de Andaluc&iacute;a</h1>
+            <p class="landing-subtitle">Datos municipales desde 1787 hasta la actualidad</p>
+        </div>
+        <div class="landing-bottom">
+            <div class="landing-progress" id="landing-progress">
+                <div class="landing-bar"></div>
+            </div>
+            <button class="landing-cta" id="landing-cta" style="display:none">
+                Empezar a explorar
+                <svg viewBox="0 0 24 24"><path d="M10 17l5-5-5-5v10z" fill="currentColor"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading overlay (used by app.js for category switches) -->
+<div class="loading-screen" id="loading" style="display:none">
+    <div class="loading-title">Andaluc&iacute;a en Datos</div>
+    <div class="loading-sub">Cargando datos...</div>
+    <div class="loading-bar"></div>
+</div>
+
+<!-- Tooltip -->
+<div class="tooltip" id="tooltip"></div>
+
+<!-- Territory picker -->
+<div class="picker-overlay" id="picker-overlay">
+    <div class="picker-backdrop" id="picker-backdrop"></div>
+    <div class="picker-panel">
+        <div class="picker-header">
+            <span class="picker-title">Seleccionar territorios</span>
+            <button class="picker-close" id="picker-close">&times;</button>
+        </div>
+        <div class="picker-levels" id="picker-levels"></div>
+        <div class="picker-search">
+            <input type="text" id="picker-search" placeholder="Buscar municipio...">
+        </div>
+        <div class="picker-body" id="picker-body"></div>
+    </div>
+</div>
+
+<!-- Settings overlay (slide-out panel) -->
+<div class="settings-overlay" id="settings-overlay">
+    <div class="settings-backdrop" id="settings-backdrop"></div>
+    <div class="settings-slide-panel">
+        <div class="settings-header">
+            <span class="settings-title" id="settings-title">Opciones</span>
+            <button class="settings-close" id="settings-close">&times;</button>
+        </div>
+        <div class="settings-body" id="settings-body"></div>
+    </div>
+</div>
+
+<!-- App -->
+<div id="app">
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sb-categories" id="sidebar"></div>
+        <button class="sb-info-btn" id="btn-info" title="Información">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
+        </button>
+    </nav>
+
+    <!-- Indicator panel (second sidebar with accordions) -->
+    <aside class="ind-panel hidden" id="ind-panel"></aside>
+
+    <!-- Main content area -->
+    <div class="main">
+        <!-- Header: Title -->
+        <div class="header">
+            <div class="app-title">Andalucía <span id="category-label">Clima</span></div>
+        </div>
+
+        <!-- Subheader: Territory + View tabs + Settings -->
+        <div class="subheader">
+            <div class="subheader-section territory-section" id="territory-section">
+                <span class="section-label">Territorio</span>
+                <div class="territory-group" id="territory-group">
+                    <div class="geo-pills" id="geo-pills">
+                        <button class="geo-pill active" data-level="municipio">Municipios</button>
+                        <button class="geo-pill" data-level="comarca">Comarcas</button>
+                        <button class="geo-pill" data-level="provincia">Provincias</button>
+                        <button class="geo-pill" data-level="region">Andaluc&iacute;a</button>
+                    </div>
+                    <button class="territory-search-btn" id="btn-territory" title="Buscar territorios">
+                        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                    </button>
+                </div>
+            </div>
+            <div class="subheader-section view-section">
+                <span class="section-label">Vista</span>
+                <div class="view-tabs" id="view-tabs"></div>
+            </div>
+            <div class="subheader-section options-section">
+                <span class="section-label">&nbsp;</span>
+                <button class="settings-pill" id="btn-settings" title="Opciones de visualización">
+                    <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.49.49 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96a.49.49 0 00-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6A3.6 3.6 0 1115.6 12 3.611 3.611 0 0112 15.6z"/></svg>
+                    <span>Opciones</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Selected territories chips -->
+        <div class="selection-bar" id="selection-bar"></div>
+
+        <!-- Visualization panels -->
+        <div class="viz-container">
+            <div class="viz-panel" id="panel-map">
+                <div class="map-dual-wrap" id="map-dual-wrap">
+                    <div class="map-container map-pane" id="map-container">
+                        <div class="map-year" id="map-year"></div>
+                        <svg class="map-svg" id="map-svg"></svg>
+                        <div class="map-legend" id="map-legend"></div>
+                        <div class="map-bubble-legend" id="map-bubble-legend" style="display:none"></div>
+                    </div>
+                    <div class="map-container map-pane" id="map-container-2" style="display:none;border-left:1px solid var(--c-border)">
+                        <button class="map2-close" id="map2-close" title="Cerrar segundo mapa">&times;</button>
+                        <div class="map-year" id="map-year-2"></div>
+                        <svg class="map-svg" id="map-svg-2"></svg>
+                        <div class="map-legend" id="map-legend-2"></div>
+                        <div class="map-bubble-legend" id="map-bubble-legend-2" style="display:none"></div>
+                    </div>
+                </div>
+                <div class="map-legend map-legend-shared" id="map-legend-shared" style="display:none"></div>
+                <div class="map-bubble-legend map-bubble-legend-shared" id="map-bubble-legend-shared" style="display:none"></div>
+            </div>
+            <div class="viz-panel" id="panel-line">
+                <div class="chart-container" id="line-chart-container">
+                    <svg class="chart-svg" id="line-svg"></svg>
+                    <div class="chart-empty" id="line-empty">Selecciona uno o más territorios para ver la evolución</div>
+                </div>
+                <div class="facet-grid" id="facet-grid" style="display:none"></div>
+            </div>
+            <div class="viz-panel" id="panel-area">
+                <div class="chart-container">
+                    <svg class="chart-svg" id="area-svg"></svg>
+                    <div class="chart-empty" id="area-empty">Selecciona dos o más territorios para ver composición</div>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-ranking">
+                <div class="ranking-container" id="ranking-container"></div>
+            </div>
+            <div class="viz-panel" id="panel-table">
+                <div class="table-container" id="table-container"></div>
+            </div>
+            <div class="viz-panel" id="panel-stripes">
+                <div class="chart-container stripes-container" id="stripes-container">
+                    <div class="stripes-wrapper" id="stripes-wrapper"></div>
+                    <div class="chart-empty" id="stripes-empty" style="display:none">Selecciona territorios o cambia a un indicador climático</div>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-climogram">
+                <div class="chart-container climogram-container" id="climogram-container">
+                    <div class="chart-empty" id="climogram-empty" style="display:none">Selecciona un territorio para ver el climograma</div>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-spaghetti">
+                <div class="chart-container spaghetti-container" id="spaghetti-container">
+                    <div class="chart-empty" id="spaghetti-empty" style="display:none">Selecciona un territorio para ver el ciclo anual</div>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-ridge">
+                <div class="chart-container ridge-container" id="ridge-container">
+                    <div class="chart-empty" id="ridge-empty" style="display:none">Selecciona un territorio para ver la distribución de temperaturas</div>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-palimpsesto">
+                <div class="palimpsesto-wrap">
+                    <div class="palimpsesto-map" id="palimpsesto-map">
+                        <svg class="palimpsesto-svg" id="palimpsesto-svg"></svg>
+                        <div class="palimpsesto-year-label" id="palimpsesto-year-label" style="display:none"></div>
+                    </div>
+                    <div class="palimpsesto-sidebar" id="palimpsesto-sidebar"></div>
+                </div>
+                <div class="palimpsesto-timeline" id="palimpsesto-timeline" style="display:none">
+                    <button class="palimpsesto-play" id="palimpsesto-play">
+                        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </button>
+                    <span class="palimpsesto-tl-year" id="palimpsesto-tl-start"></span>
+                    <input type="range" class="palimpsesto-slider" id="palimpsesto-slider">
+                    <span class="palimpsesto-tl-year" id="palimpsesto-tl-end"></span>
+                    <span class="palimpsesto-tl-current" id="palimpsesto-tl-current"></span>
+                </div>
+            </div>
+            <div class="viz-panel" id="panel-about">
+                <div class="about-container" id="about-container">
+                    <div class="about-content">
+                        <h1>Atlas Histórico Municipal de Andalucía</h1>
+                        <p class="about-lead">Plataforma de datos históricos a escala municipal desarrollada en el Laboratorio de Historia de los Agroecosistemas de la Universidad Pablo de Olavide, en el marco de diversas investigaciones sobre cambio agrario y poblacional en Andalucía.</p>
+
+                        <div class="about-nav" id="about-nav">
+                            <button class="about-nav-btn active" data-section="metodologia">Metodología</button>
+                            <button class="about-nav-btn" data-section="equipo">Equipo</button>
+                            <button class="about-nav-btn" data-section="publicaciones">Publicaciones</button>
+                        </div>
+
+                        <div class="about-section active" id="about-metodologia">
+                            <div class="method-cards" id="method-cards"></div>
+                            <div class="method-detail" id="method-detail"></div>
+                        </div>
+
+                        <div class="about-section" id="about-equipo">
+                            <div class="about-heading">Equipo investigador</div>
+                            <div class="about-team-grid">
+                                <article class="about-card">
+                                    <div class="about-avatar">
+                                        <img src="img/juaninfante.jpg" alt="Juan Infante-Amate">
+                                    </div>
+                                    <div class="about-card-name">Juan Infante-Amate</div>
+                                    <div class="about-card-role">Catedr&aacute;tico de Universidad</div>
+                                    <div class="about-card-inst">Universidad de Granada</div>
+                                    <p class="about-card-desc">Historia econ&oacute;mica y ambiental; coordinaci&oacute;n cient&iacute;fica del atlas.</p>
+                                    <div class="about-card-links">
+                                        <a class="about-link" href="https://www.ugr.es/personal/juan-infante-amate" target="_blank" rel="noopener" title="Ficha UGR">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.9 15.9 0 00-1.18-5.02A8.03 8.03 0 0119.93 11zM12 4.04c.83 1.2 1.48 3.07 1.69 5.96h-3.38c.21-2.89.86-4.76 1.69-5.96zM4.07 13h3.02c.16 1.98.55 3.7 1.18 5.02A8.03 8.03 0 014.07 13zm3.02-2H4.07a8.03 8.03 0 014.2-5.02A15.9 15.9 0 007.09 11zM12 19.96c-.83-1.2-1.48-3.07-1.69-5.96h3.38c-.21 2.89-.86 4.76-1.69 5.96zm2.15-7.96h-4.3a29.9 29.9 0 010-2h4.3a29.9 29.9 0 010 2zm1.58 6.02c.63-1.32 1.02-3.04 1.18-5.02h3.02a8.03 8.03 0 01-4.2 5.02z"/></svg>
+                                            UGR
+                                        </a>
+                                        <a class="about-link" href="https://orcid.org/0000-0003-1446-7181" target="_blank" rel="noopener" title="ORCID">ORCID</a>
+                                    </div>
+                                </article>
+
+                                <article class="about-card">
+                                    <div class="about-avatar about-avatar-placeholder">MB</div>
+                                    <div class="about-card-name">Manuel Barrera Mu&ntilde;oz</div>
+                                    <div class="about-card-role">Investigador FPI</div>
+                                    <div class="about-card-inst">Universidad de Granada</div>
+                                    <p class="about-card-desc">Historia econ&oacute;mica, cambio agrario y series municipales de largo plazo.</p>
+                                    <div class="about-card-links">
+                                        <a class="about-link" href="https://www.ugr.es/personal/manuel-barrera-munoz" target="_blank" rel="noopener" title="Ficha UGR">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.9 15.9 0 00-1.18-5.02A8.03 8.03 0 0119.93 11zM12 4.04c.83 1.2 1.48 3.07 1.69 5.96h-3.38c.21-2.89.86-4.76 1.69-5.96zM4.07 13h3.02c.16 1.98.55 3.7 1.18 5.02A8.03 8.03 0 014.07 13zm3.02-2H4.07a8.03 8.03 0 014.2-5.02A15.9 15.9 0 007.09 11zM12 19.96c-.83-1.2-1.48-3.07-1.69-5.96h3.38c-.21 2.89-.86 4.76-1.69 5.96zm2.15-7.96h-4.3a29.9 29.9 0 010-2h4.3a29.9 29.9 0 010 2zm1.58 6.02c.63-1.32 1.02-3.04 1.18-5.02h3.02a8.03 8.03 0 01-4.2 5.02z"/></svg>
+                                            UGR
+                                        </a>
+                                    </div>
+                                </article>
+
+                                <article class="about-card">
+                                    <div class="about-avatar about-avatar-placeholder">JM</div>
+                                    <div class="about-card-name">Juan Luis Mart&iacute;nez de la Fuente</div>
+                                    <div class="about-card-role">Profesor Asociado</div>
+                                    <div class="about-card-inst">Universidad Pablo de Olavide</div>
+                                    <p class="about-card-desc">Historia contempor&aacute;nea y asentamientos poblacionales del sur de Espa&ntilde;a.</p>
+                                    <div class="about-card-links">
+                                        <a class="about-link" href="https://investiga.upo.es/investigadores/159094/detalle" target="_blank" rel="noopener" title="Ficha Investiga UPO">
+                                            <svg viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm7.93 9h-3.02a15.9 15.9 0 00-1.18-5.02A8.03 8.03 0 0119.93 11zM12 4.04c.83 1.2 1.48 3.07 1.69 5.96h-3.38c.21-2.89.86-4.76 1.69-5.96zM4.07 13h3.02c.16 1.98.55 3.7 1.18 5.02A8.03 8.03 0 014.07 13zm3.02-2H4.07a8.03 8.03 0 014.2-5.02A15.9 15.9 0 007.09 11zM12 19.96c-.83-1.2-1.48-3.07-1.69-5.96h3.38c-.21 2.89-.86 4.76-1.69 5.96zm2.15-7.96h-4.3a29.9 29.9 0 010-2h4.3a29.9 29.9 0 010 2zm1.58 6.02c.63-1.32 1.02-3.04 1.18-5.02h3.02a8.03 8.03 0 01-4.2 5.02z"/></svg>
+                                            UPO
+                                        </a>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div class="about-team-note">
+                                <p>Las filiaciones se apoyan en las fichas p&uacute;blicas de UGR e Investiga UPO. Las fotos de Manuel Barrera Mu&ntilde;oz y Juan Luis Mart&iacute;nez de la Fuente quedan preparadas para sustituirse por retratos propios cuando est&eacute;n disponibles.</p>
+                            </div>
+                        </div>
+
+                        <div class="about-section" id="about-publicaciones">
+                            <p class="about-placeholder">Listado de publicaciones próximamente.</p>
+                        </div>
+
+                        <div class="about-footer-text">
+                            <p>Los datos y visualizaciones son de acceso abierto. Para citar este recurso, consultar la nota metodológica de cada indicador.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            <button class="tl-play" id="tl-play">
+                <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button class="tl-speed" id="tl-speed">4x</button>
+            <input class="tl-year-input" id="tl-year-start" type="number" title="Año inicio">
+            <div class="tl-track" id="tl-track">
+                <div class="tl-rail"></div>
+                <div class="tl-range-fill" id="tl-range-fill"></div>
+                <div class="tl-handle" id="tl-handle-from">
+                    <div class="tl-handle-label" id="tl-label-from"></div>
+                </div>
+                <div class="tl-handle" id="tl-handle-to">
+                    <div class="tl-handle-label" id="tl-label-to"></div>
+                </div>
+            </div>
+            <input class="tl-year-input" id="tl-year-end" type="number" title="Año fin">
+            <div class="tl-year" id="tl-year">2023</div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <span>Fuente: INE &middot; Censos históricos &middot; Padrón municipal</span>
+            <div class="footer-actions">
+                <button class="footer-btn" id="btn-csv">CSV</button>
+                <button class="footer-btn" id="btn-fs">Pantalla completa</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="js/landing.js"></script>
+</body>
+</html>

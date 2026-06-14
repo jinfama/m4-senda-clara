@@ -1,0 +1,18 @@
+{
+"type": "FeatureCollection",
+"name": "ciudades_puertos_xviii",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "nombre": "Málaga", "tipo": "Puerto marítimo", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -4.503849469999977, 36.719250645999978 ] } },
+{ "type": "Feature", "properties": { "nombre": "Málaga", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -4.336027263, 36.721402796 ] } },
+{ "type": "Feature", "properties": { "nombre": "Almería", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -2.380071343, 36.838514185 ] } },
+{ "type": "Feature", "properties": { "nombre": "Almería", "tipo": "Puerto marítimo", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -2.54819146, 36.839297914999975 ] } },
+{ "type": "Feature", "properties": { "nombre": "Granada", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -3.600002383, 37.176433550000013 ] } },
+{ "type": "Feature", "properties": { "nombre": "Jaén", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -3.790344097, 37.765196818999982 ] } },
+{ "type": "Feature", "properties": { "nombre": "Cádiz", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -6.200448854, 36.524168288999988 ] } },
+{ "type": "Feature", "properties": { "nombre": "Huelva", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -6.950360466, 37.260029928 ] } },
+{ "type": "Feature", "properties": { "nombre": "Sevilla", "tipo": "Puerto marítimo", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -6.077130774000011, 37.383897569999988 ] } },
+{ "type": "Feature", "properties": { "nombre": "Sevilla", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -5.907811262, 37.388434620999988 ] } },
+{ "type": "Feature", "properties": { "nombre": "Córdoba", "tipo": "Ciudades", "periodo": "Siglo XVIII" }, "geometry": { "type": "Point", "coordinates": [ -4.780300653999973, 37.879547296999988 ] } }
+]
+}
